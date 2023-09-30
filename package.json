@@ -2,7 +2,7 @@
   "name": "one-pick",
   "version": "0.0.1",
   "main": "dist-electron/main/index.js",
-  "description": "Really simple Electron + Vue + Vite boilerplate.",
+  "description": "One Pick 一键商品信息采集",
   "author": "barry",
   "license": "MIT",
   "private": true,

@@ -92,8 +92,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { join } from 'node:path';
 import { app } from 'electron';
-
-const isDev = process.env.NODE_ENV === 'development';
+import { isDev } from '../utils';
 
 class AppUpdater {
   constructor() {

@@ -1,0 +1,8 @@
+- browserView 实现存在多个窗口布局管理问题，增加开发和维护成本。
+  - 导航模块 browserView
+  - 内嵌模块
+  - 采集模块
+  -
+- iframe 存在较多不确定限制
+- target=\_\_blank 和 window.open 新开窗口问题,需要转换为业内路由
+- 路由栈实现

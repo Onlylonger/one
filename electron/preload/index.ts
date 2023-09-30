@@ -1,16 +1,21 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { version } from '../utils';
+import { IPC_CHANNEL } from '../contant';
 
 const ipc = {
   render: {
     // 主进程发出的通知
-    send: ['checkForUpdate', 'checkAppVersion'],
+    send: ['checkForUpdate', 'checkAppVersion', 'update-url', 'back'],
     // 渲染进程发出的通知
-    receive: ['version', 'downloadProgress'],
+    receive: ['version', 'downloadProgress', IPC_CHANNEL.DidNavigateInPage],
   },
 };
 
+console.log(version);
 const electronHandler = {
-  ipcRenderer,
+  packageInfo: {
+    version,
+  },
   ipcRender: {
     // 主进程发送通知给渲染进程
     send: (channel: string, data?: Record<string, any>) => {
