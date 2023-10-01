@@ -12,7 +12,7 @@
     "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["element-plus/global", "./electron/preload/preload.d.ts"]
+    "types": ["element-plus/global", "./electron/preload/preload.d.ts", "electron"]
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

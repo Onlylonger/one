@@ -15,6 +15,7 @@ const electronHandler = {
   packageInfo: {
     version,
   },
+  IPC_CHANNEL,
   ipcRender: {
     // 主进程发送通知给渲染进程
     send: (channel: string, data?: Record<string, any>) => {

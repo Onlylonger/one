@@ -2,9 +2,8 @@
 import { onMounted, reactive, ref, watch } from 'vue';
 import { ArrowLeftBold, ArrowRightBold, RefreshRight, Right, Setting, InfoFilled } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { WebviewTag } from 'electron/renderer';
-import { IPC_CHANNEL } from '../electron/contant';
-const { ipcRender, packageInfo } = window.electron;
+import { type WebviewTag } from 'electron/renderer';
+const { ipcRender, packageInfo, IPC_CHANNEL } = window.electron;
 
 const defaultUrl = 'https://www.jd.com/';
 // const defaultUrl = 'https://www.baidu.com';
