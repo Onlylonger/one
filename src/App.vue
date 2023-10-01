@@ -6,34 +6,34 @@ import { WebviewTag } from 'electron/renderer';
 import { IPC_CHANNEL } from '../electron/contant';
 const { ipcRender, packageInfo } = window.electron;
 
-// const defaultUrl = 'https://www.jd.com/';
+const defaultUrl = 'https://www.jd.com/';
 // const defaultUrl = 'https://www.baidu.com';
-const defaultUrl = 'https://www.electronjs.org/';
+// const defaultUrl = 'https://www.electronjs.org/';
 // const defaultUrl = 'https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/iframe';
 
 const userInput = ref(defaultUrl);
 const loading = ref(false);
 const input = ref(defaultUrl);
-const tab = ref('New York');
-const info = reactive({
-  version: '',
-  progress: 0,
-  text: '',
-});
+// const tab = ref('New York');
+// const info = reactive({
+//   version: '',
+//   progress: 0,
+//   text: '',
+// });
 const webviewRef = ref<WebviewTag | null>(null);
 const navigateInfo = reactive({
   canBack: false,
   canGoForWard: false,
 });
 
-watch(input, () => {
-  console.log('webviewRef.value?.canGoBack()', webviewRef.value?.canGoBack());
+watch(userInput, () => {
   if (webviewRef.value?.canGoBack) {
     navigateInfo.canBack = webviewRef.value?.canGoBack();
   }
   if (webviewRef.value?.canGoForward) {
     navigateInfo.canGoForWard = webviewRef.value?.canGoForward();
   }
+  console.log(navigateInfo.canBack, navigateInfo.canGoForWard);
 });
 
 onMounted(() => {
@@ -71,11 +71,13 @@ onMounted(() => {
   webviewRef.value?.addEventListener('did-stop-loading', () => {
     loading.value = false;
   });
-  webviewRef.value?.addEventListener('did-navigate', (url) => {
-    console.log('jump', url);
+  webviewRef.value?.addEventListener('did-navigate', (event) => {
+    const { url } = event;
+    userInput.value = url;
   });
-  webviewRef.value?.addEventListener('did-navigate-in-page', (_, url) => {
-    console.log('jump-in-page', url);
+  webviewRef.value?.addEventListener('did-navigate-in-page', (event) => {
+    const { url } = event;
+    userInput.value = url;
   });
   webviewRef.value?.addEventListener('dom-ready', () => {
     ipcRender.send(IPC_CHANNEL.SendWebViewContentId, {
@@ -89,7 +91,6 @@ const dropMenuMap = {
     label: '关于',
     Icon: InfoFilled,
     handle() {
-      ipcRender.send('back');
       ElMessageBox.alert(`当前版本信息： ${packageInfo.version}`, '关于', {
         showClose: false,
         confirmButtonText: '关闭',
@@ -117,7 +118,6 @@ const handleGo = () => {
   try {
     new URL(userInput.value);
     input.value = userInput.value;
-    // ipcRender.send('update-url', { url: userInput.value });
   } catch (error: any) {
     ElMessage.error('请输入正确的链接地址');
   }
@@ -125,6 +125,10 @@ const handleGo = () => {
 
 const handleBack = () => {
   webviewRef.value?.goBack();
+};
+
+const handleForward = () => {
+  webviewRef.value?.goForward();
 };
 
 const handleRefreshWebView = () => {
@@ -137,11 +141,14 @@ const handleRefreshWebView = () => {
     <el-header class="header">
       <el-row :gutter="10" align="middle">
         <el-col :span="1">
-          <ArrowLeftBold v-show="navigateInfo.canBack" class="icon" @click="handleBack" />
-          <ArrowLeftBold v-show="!navigateInfo.canBack" class="icon disabled" />
+          <ArrowLeftBold class="icon" @click="handleBack" />
+          <!-- <ArrowLeftBold v-show="navigateInfo.canBack" class="icon" @click="handleBack" />
+          <ArrowLeftBold v-show="!navigateInfo.canBack" class="icon disabled" /> -->
         </el-col>
         <el-col :span="1">
-          <ArrowRightBold class="icon" />
+          <ArrowRightBold class="icon" @click="handleForward" />
+          <!-- <ArrowRightBold v-show="navigateInfo.canGoForWard" class="icon" @click="handleForward" />
+          <ArrowRightBold v-show="!navigateInfo.canGoForWard" class="icon disabled" /> -->
         </el-col>
         <el-col :span="1">
           <RefreshRight class="icon" @click="handleRefreshWebView" />
@@ -169,12 +176,12 @@ const handleRefreshWebView = () => {
         </el-col>
       </el-row>
     </el-header>
-    <el-radio-group v-model="tab">
+    <!-- <el-radio-group v-model="tab">
       <el-radio-button label="New York" />
       <el-radio-button label="Washington" />
       <el-radio-button label="Los Angeles" />
       <el-radio-button label="Chicago" />
-    </el-radio-group>
+    </el-radio-group> -->
 
     <el-divider />
     <div v-loading="loading">
@@ -201,9 +208,9 @@ const handleRefreshWebView = () => {
 }
 .icon.disabled {
   cursor: not-allowed;
-  color: red;
+  color: var(--el-disabled-text-color);
 }
-.icon:hover {
+.icon:not(.disabled):hover {
   cursor: pointer;
   color: var(--el-color-primary);
   border: 1px solid var(--el-color-primary);
