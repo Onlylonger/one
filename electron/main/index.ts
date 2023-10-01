@@ -5,6 +5,7 @@ import AppUpdater from '../updater';
 import '../logger';
 import { isDev } from '../utils';
 import { IPC_CHANNEL } from '../contant';
+import WebView from './webview';
 
 process.env.DIST_ELECTRON = join(__dirname, '..');
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist');
@@ -46,6 +47,7 @@ async function createWindow() {
     webPreferences: {
       preload,
       ...commonWebPreferences,
+      webviewTag: true,
     },
   });
 
@@ -67,11 +69,14 @@ async function createWindow() {
 
   // Make all links open with the browser, not with the application
   mainWin.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:')) shell.openExternal(url);
+    console.log(url);
+    mainWin.webContents.send(IPC_CHANNEL.OpenWindow, { url });
+    // if (url.startsWith('https:')) shell.openExternal(url);
     return { action: 'deny' };
   });
 
   // new AppUpdater();
+  new WebView(mainWin);
 }
 
 app.whenReady().then(createWindow);

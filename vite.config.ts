@@ -16,7 +16,13 @@ export default defineConfig(({ command }) => {
 
   return {
     plugins: [
-      vue(),
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: (tag) => tag.startsWith('webview'),
+          },
+        },
+      }),
       electron([
         {
           // Main process entry file of the Electron App.

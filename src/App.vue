@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { ArrowLeftBold, ArrowRightBold, RefreshRight, Right, Setting, InfoFilled } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { WebviewTag } from 'electron/renderer';
+import { IPC_CHANNEL } from '../electron/contant';
 const { ipcRender, packageInfo } = window.electron;
 
-const defaultUrl = 'https://www.jd.com/';
+// const defaultUrl = 'https://www.jd.com/';
 // const defaultUrl = 'https://www.baidu.com';
-// const defaultUrl = 'https://www.electronjs.org/';
+const defaultUrl = 'https://www.electronjs.org/';
 // const defaultUrl = 'https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/iframe';
 
 const userInput = ref(defaultUrl);
+const loading = ref(false);
 const input = ref(defaultUrl);
 const tab = ref('New York');
 const info = reactive({
@@ -17,27 +20,67 @@ const info = reactive({
   progress: 0,
   text: '',
 });
+const webviewRef = ref<WebviewTag | null>(null);
+const navigateInfo = reactive({
+  canBack: false,
+  canGoForWard: false,
+});
+
+watch(input, () => {
+  console.log('webviewRef.value?.canGoBack()', webviewRef.value?.canGoBack());
+  if (webviewRef.value?.canGoBack) {
+    navigateInfo.canBack = webviewRef.value?.canGoBack();
+  }
+  if (webviewRef.value?.canGoForward) {
+    navigateInfo.canGoForWard = webviewRef.value?.canGoForward();
+  }
+});
+
 onMounted(() => {
-  ipcRender.receive('did-navigate-in-page', (data: any) => {
-    userInput.value = data.url;
+  // ipcRender.receive('did-navigate-in-page', (data: any) => {
+  //   userInput.value = data.url;
+  //   input.value = data.url;
+  // });
+  // // 给主进程发通知，让主进程告诉我们当前应用的版本是多少
+  // ipcRender.send('checkAppVersion');
+  // // 接收主进程发来的通知，检测当前应用版本
+  // ipcRender.receive('version', (version: string) => {
+  //   info.version = version;
+  // });
+  // // 给主进程发通知，检测当前应用是否需要更新
+  // ipcRender.send('checkForUpdate');
+  // // 接收主进程发来的通知，告诉用户当前应用是否需要更新
+  // ipcRender.receive('message', (text: string) => {
+  //   info.text = text;
+  // });
+  // // 如果当前应用有新版本需要下载，则监听主进程发来的下载进度
+  // ipcRender.receive('downloadProgress', (data: Record<string, any>) => {
+  //   const progress = parseInt(data.percent, 10);
+  //   info.progress = progress;
+  // });
+  ipcRender.receive(IPC_CHANNEL.OpenWindow, (data: Record<string, any>) => {
     input.value = data.url;
+    userInput.value = data.url;
   });
-  // 给主进程发通知，让主进程告诉我们当前应用的版本是多少
-  ipcRender.send('checkAppVersion');
-  // 接收主进程发来的通知，检测当前应用版本
-  ipcRender.receive('version', (version: string) => {
-    info.version = version;
+  webviewRef.value?.addEventListener('did-start-loading', () => {
+    loading.value = true;
+    setTimeout(() => {
+      loading.value = false;
+    }, 10000);
   });
-  // 给主进程发通知，检测当前应用是否需要更新
-  ipcRender.send('checkForUpdate');
-  // 接收主进程发来的通知，告诉用户当前应用是否需要更新
-  ipcRender.receive('message', (text: string) => {
-    info.text = text;
+  webviewRef.value?.addEventListener('did-stop-loading', () => {
+    loading.value = false;
   });
-  // 如果当前应用有新版本需要下载，则监听主进程发来的下载进度
-  ipcRender.receive('downloadProgress', (data: Record<string, any>) => {
-    const progress = parseInt(data.percent, 10);
-    info.progress = progress;
+  webviewRef.value?.addEventListener('did-navigate', (url) => {
+    console.log('jump', url);
+  });
+  webviewRef.value?.addEventListener('did-navigate-in-page', (_, url) => {
+    console.log('jump-in-page', url);
+  });
+  webviewRef.value?.addEventListener('dom-ready', () => {
+    ipcRender.send(IPC_CHANNEL.SendWebViewContentId, {
+      id: webviewRef.value?.getWebContentsId(),
+    });
   });
 });
 
@@ -79,6 +122,14 @@ const handleGo = () => {
     ElMessage.error('请输入正确的链接地址');
   }
 };
+
+const handleBack = () => {
+  webviewRef.value?.goBack();
+};
+
+const handleRefreshWebView = () => {
+  webviewRef.value?.reload();
+};
 </script>
 
 <template>
@@ -86,13 +137,14 @@ const handleGo = () => {
     <el-header class="header">
       <el-row :gutter="10" align="middle">
         <el-col :span="1">
-          <ArrowLeftBold class="icon" />
+          <ArrowLeftBold v-show="navigateInfo.canBack" class="icon" @click="handleBack" />
+          <ArrowLeftBold v-show="!navigateInfo.canBack" class="icon disabled" />
         </el-col>
         <el-col :span="1">
           <ArrowRightBold class="icon" />
         </el-col>
         <el-col :span="1">
-          <RefreshRight class="icon" />
+          <RefreshRight class="icon" @click="handleRefreshWebView" />
         </el-col>
         <el-col :span="19">
           <div class="input-wrap">
@@ -125,11 +177,8 @@ const handleGo = () => {
     </el-radio-group>
 
     <el-divider />
-    <div>
-      <iframe :src="input" class="iframe" />
-      <!-- hello world wangshilong
-      <p>{{ info.text }}</p>
-      <p v-if="info.progress">下载进度：{{ info.progress }}%</p> -->
+    <div v-loading="loading">
+      <webview :src="input" class="iframe" ref="webviewRef" id="webview" allowpopups="true" />
     </div>
   </el-container>
   <!--  -->
@@ -149,6 +198,10 @@ const handleGo = () => {
   width: 20px;
   height: 20px;
   border: 1px solid transparent;
+}
+.icon.disabled {
+  cursor: not-allowed;
+  color: red;
 }
 .icon:hover {
   cursor: pointer;
