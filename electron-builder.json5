@@ -8,8 +8,9 @@
   productName: 'OnePick',
   directories: {
     output: 'release',
+    buildResources: 'icon',
   },
-  files: ['dist', 'dist-electron'],
+  files: ['dist', 'dist-electron', 'icon'],
   // mac: {
   //   target: ['dmg'],
   //   artifactName: '${productName}-Mac-Installer.${ext}',
@@ -35,6 +36,9 @@
   // linux: {
   //   target: ['AppImage'],
   //   artifactName: '${productName}-Linux-${version}.${ext}',
+  // },
+  // fileAssociations: {
+  //   icon: './public/',
   // },
   publish: [
     {
