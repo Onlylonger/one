@@ -55,7 +55,7 @@ export default defineConfig(({ command }) => {
           },
         },
         {
-          entry: 'electron/preload/index.ts',
+          entry: ['electron/preload/index.ts', 'electron/preload/webview.ts'],
           onstart({ reload }) {
             // Notify the Renderer process to reload the page when the Preload scripts build is complete,
             // instead of restarting the entire Electron App.

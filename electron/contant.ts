@@ -3,4 +3,5 @@ export enum IPC_CHANNEL {
   UpdateUrl = 'UpdateUrl',
   OpenWindow = 'OpenWindow',
   SendWebViewContentId = 'SendWebViewContentId',
+  GetPageNetWorkResponseBody = 'GetPageNetWorkResponseBody',
 }

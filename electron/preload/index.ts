@@ -15,6 +15,7 @@ const electronHandler = {
   packageInfo: {
     version,
   },
+  webviewPreload: process.env.DIST_WEBVIEW_PRELOAD,
   IPC_CHANNEL,
   ipcRender: {
     // 主进程发送通知给渲染进程
