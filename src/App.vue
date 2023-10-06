@@ -20,6 +20,7 @@ const userInput = ref(defaultUrl);
 const loading = ref(false);
 const input = ref(defaultUrl);
 const tab = ref(tabsList[0].key);
+const apiInfo = ref();
 // const info = reactive({
 //   version: '',
 //   progress: 0,
@@ -69,6 +70,7 @@ onMounted(() => {
   });
   ipcRender.receive(IPC_CHANNEL.GetPageNetWorkResponseBody, (data: Record<string, any>) => {
     console.log(data);
+    apiInfo.value = data;
     // input.value = data.url;
     // userInput.value = data.url;
   });
@@ -225,6 +227,8 @@ const handleGather = () => {
         <h3>商品ID: {{}}<el-link type="primary">采集当前页面商品id</el-link></h3>
 
         <el-button @click="handleGather">采集信息</el-button>
+        <h3>api信息</h3>
+        <div>{{ apiInfo }}</div>
       </el-main>
     </el-container>
   </el-container>

@@ -33,11 +33,11 @@ export default class WebView {
           //params中无响应数据只有响应头
           var mimeType = params.response.mimeType;
           if (mimeType != 'image/gif' && mimeType != 'image/jpeg' && mimeType == 'application/json') {
-            console.log(params);
+            // console.log(params);
             guest.debugger.sendCommand('Network.getResponseBody', { requestId: params.requestId }).then((response) => {
               hostAjaxDataMap.info = {
                 ...hostAjaxDataMap.info,
-                [params.response.url]: response.body,
+                [params.response.url]: JSON.parse(response.body),
               };
               this.win.webContents.send(IPC_CHANNEL.GetPageNetWorkResponseBody, hostAjaxDataMap);
               // console.log(response);
