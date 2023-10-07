@@ -119,7 +119,3 @@ ipcMain.handle('open-mainWin', (_, arg) => {
     childWindow.loadFile(indexHtml, { hash: arg });
   }
 });
-
-ipcMain.on('ceshi', (_, data) => {
-  console.log(_, data);
-});

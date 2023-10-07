@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { ArrowLeftBold, ArrowRightBold, RefreshRight, Right, Setting, InfoFilled } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { type WebviewTag } from 'electron/renderer';
@@ -40,6 +40,9 @@ watch(userInput, () => {
     navigateInfo.canGoForWard = webviewRef.value?.canGoForward();
   }
   console.log(navigateInfo.canBack, navigateInfo.canGoForWard);
+});
+const usefulInfo = computed(() => {
+  // 这里需要匹配 当前域名、想要匹配的 url 以及获取对应的api信息
 });
 
 onMounted(() => {
