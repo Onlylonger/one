@@ -34,7 +34,7 @@
     "vue": "^3.3.4",
     "vue-tsc": "^1.8.8",
     "@element-plus/icons-vue": "^2.1.0",
-    "electron-log": "^4.4.8",
+    "electron-log": "^5.0.3",
     "electron-updater": "^6.1.4",
     "element-plus": "^2.3.14"
   },
